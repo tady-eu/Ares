@@ -1,0 +1,29 @@
+{
+    "name": "tady-eu/ares",
+    "type": "library",
+    "description": "Client for fetching ARES data.",
+    "keywords": ["ares", "php"],
+    "homepage": "https://github.com/tady-eu/AresClient",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jaromír Navara [BG]",
+            "email": "web@bagricek.cz"
+        }
+    ],
+    "require": {
+        "php": "^7.0",
+        "guzzlehttp/guzzle": "^6.2"
+    },
+    "require-dev": {
+      "phpunit/phpunit": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "BG\\Ares\\": "src/"
+        }
+    },
+    "config": {
+        "platform": { "php": "7.0" }
+    }
+}
