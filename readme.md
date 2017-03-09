@@ -27,3 +27,4 @@ $multipleByParameters = $aresClient->findByQuery([
 ]);  // Returns array \BG\Ares\Record[]
 
 ```
+Available query parameters can be found at [http://wwwinfo.mfcr.cz/ares/ares_xml_standard.html.cz](http://wwwinfo.mfcr.cz/ares/ares_xml_standard.html.cz)

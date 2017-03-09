@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace BG\Ares;
 
-class Record{
+class Record {
 
     /** @var string */
     protected $firma;
@@ -26,7 +26,7 @@ class Record{
     /** @var int */
     protected $ic;
 
-    /** @var string */
+    /** @var string|null */
     protected $dic;
 
     /**
@@ -38,7 +38,7 @@ class Record{
      * @param int $ic
      * @param string $dic
      */
-    public function __construct(string $firma, string $ulice, string $mesto, int $psc, int $ic, string $dic)
+    public function __construct(string $firma, string $ulice, string $mesto, int $psc, int $ic, $dic)
     {
         $this->firma = $firma;
         $this->ulice = $ulice;
@@ -91,7 +91,7 @@ class Record{
     /**
      * @return string
      */
-    public function getDic(): string
+    public function getDic()
     {
         return $this->dic;
     }

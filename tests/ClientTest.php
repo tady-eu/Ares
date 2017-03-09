@@ -10,6 +10,8 @@ namespace BG\Ares\Tests;
 require "src/Client.php";
 require "src/AresException.php";
 require "src/Record.php";
+require "src/Parsers/BasicParser.php";
+require "src/Parsers/StandardIdParser.php";
 
 use BG\Ares\Client;
 
