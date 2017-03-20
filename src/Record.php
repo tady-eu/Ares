@@ -18,6 +18,12 @@ class Record {
     protected $ulice;
 
     /** @var string */
+    protected $cisloPopisne;
+
+    /** @var string */
+    protected $cisloOrientacni;
+
+    /** @var string */
     protected $mesto;
 
     /** @var int */
@@ -38,10 +44,12 @@ class Record {
      * @param int $ic
      * @param string $dic
      */
-    public function __construct(string $firma, string $ulice, string $mesto, int $psc, int $ic, $dic)
+    public function __construct(string $firma, string $ulice, string $cisloPopisne, string $cisloOrientacni, string $mesto, int $psc, int $ic, $dic)
     {
         $this->firma = $firma;
         $this->ulice = $ulice;
+        $this->cisloPopisne = $cisloPopisne;
+        $this->cisloOrientacni = $cisloOrientacni;
         $this->mesto = $mesto;
         $this->psc = $psc;
         $this->ic = $ic;
@@ -94,6 +102,22 @@ class Record {
     public function getDic()
     {
         return $this->dic;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCisloPopisne(): string
+    {
+        return $this->cisloPopisne;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCisloOrientacni(): string
+    {
+        return $this->cisloOrientacni;
     }
 
 }

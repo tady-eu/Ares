@@ -30,7 +30,9 @@ class BasicParser
             $data = $odpoved->children($namespaces["D"])->VBAS;
             $subjects[] = new Record(
                 (string)$data->OF,
-                "{$data->AA->NU} {$data->AA->CD}" . ($data->AA->CO ? "/{$data->AA->CO}" : ""),
+                (string)$data->AA->NU,
+                (string)$data->AA->CD,
+                $data->AA->CO ? (string)$data->AA->CO : NULL,
                 (string)$data->AA->N,
                 (int)$data->AA->PSC,
                 (int)$data->ICO,
