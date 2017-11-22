@@ -1,5 +1,5 @@
 # ARES
-[![Latest stable](https://img.shields.io/packagist/v/tady-eu/ares.svg?style=flat-square)](https://packagist.org/packages/dfridrich/ares)
+[![Latest stable](https://img.shields.io/packagist/v/tady-eu/ares.svg?style=flat-square)](https://packagist.org/packages/tady-eu/ares)
 
 Client for fetching data from ARES.
 
