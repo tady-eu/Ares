@@ -115,7 +115,7 @@ class Record {
     /**
      * @return string|null
      */
-    public function getCisloOrientacni(): string
+    public function getCisloOrientacni(): ?string
     {
         return $this->cisloOrientacni;
     }
