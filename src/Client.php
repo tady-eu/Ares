@@ -13,6 +13,8 @@ use BG\Ares\Parsers\BasicParser;
 use BG\Ares\Parsers\StandardIdParser;
 use GuzzleHttp\Psr7\Response;
 
+use function GuzzleHttp\json_encode;
+
 /**
  * Class Client
  * @package BG\Ares
@@ -20,54 +22,54 @@ use GuzzleHttp\Psr7\Response;
 class Client
 {
 
-    /**
-     * API endpoint we use to look for what ICs to fetch
-     * @see http://wwwinfo.mfcr.cz/ares/ares_xml_standard.html.cz
-     */
-    const STANDARD_URL = 'http://wwwinfo.mfcr.cz/cgi-bin/ares/darv_std.cgi';
-
+    const URL_IC = 'https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/';
     /**
      * API endpoint for fetching data by IC
      * @see http://wwwinfo.mfcr.cz/ares/ares_xml_basic.html.cz
      */
-    const BASIC_URL = 'http://wwwinfo.mfcr.cz/cgi-bin/ares/darv_bas.cgi';
-
-    const DEFAULT_QUERY_PARAMETERS = [
-        "czk" => "utf"
-    ];
+    const URL_SEARCH = 'https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/vyhledat';
 
     /** @var \GuzzleHttp\Client */
     protected $client;
 
     public function __construct()
     {
-        $this->client = new \GuzzleHttp\Client([
-            "base_uri" => self::STANDARD_URL
-        ]);
+        $this->client = new \GuzzleHttp\Client();
     }
 
     /**
-     * @param array $query Possible parameters of query as follows:
-     * @see http://wwwinfo.mfcr.cz/ares/ares_xml_standard.html.cz For allowed parameters
+     * @param array $query (obchodniJmeno => ?, adresa => ?, ico => ?)
+     * @param int $start
+     * @param int $pocet
      * @throws AresException
      * @return Record[]|null
      */
-    public function findByQuery(array $query)
+    public function findByQuery(array $query, $start = 0, $pocet = 10)
     {
-        $API_ENDPOINT = isset($query["ico"]) ? self::BASIC_URL : self::STANDARD_URL;
+        $qry = [];
+        if($query["obchodniJmeno"] ?? false) $qry["obchodniJmeno"] = $query["obchodniJmeno"];
+        if($query["adresa"] ?? false) $qry["sidlo"]["textovaAdresa"] = $query["adresa"];
+        if($query["ico"] ?? false) $qry["ico"] = $query["ico"];
 
         /** @var Response $res */
-        $res = $this->client->get($API_ENDPOINT, ["query" => array_merge(self::DEFAULT_QUERY_PARAMETERS, $query)]);
+        $res = $this->client->post(self::URL_SEARCH, [
+            "headers" => [
+                "Content-Type" => "application/json",
+            ],
+            "body" => json_encode(array_merge([
+                "start" => $start,
+                "pocet" => $pocet,
+            ], $qry))
+        ]);
 
         if ($res->getStatusCode() !== 200) throw new AresException("Cannot fetch data! HTTP CODE " . $res->getStatusCode());
 
-        $xmlElem = new \SimpleXMLElement((string)$res->getBody());
-
-        return isset($query["ico"]) ? BasicParser::parseXml($xmlElem) : $this->fetchByICs(StandardIdParser::parseXml($xmlElem));
+        $jsonData = json_decode($res->getBody()->getContents(), true);
+        return array_map([$this, "recordFromResponse"], $jsonData["ekonomickeSubjekty"]);
     }
 
     /**
-     * @param int[]|null $ICs
+     * @param string[]|null $ICs
      * @return array|null
      */
     protected function fetchByICs($ICs){
@@ -88,17 +90,39 @@ class Client
      */
     public function findOneByQuery(array $query)
     {
-        $res = $this->findByQuery($query);
-        return $res !== null ? $res[0] : null;
+        $res = $this->findByQuery($query, 0, 1);
+        return $res[0] ?? null;
     }
 
     /**
-     * @param int $ic
+     * @param string $ic
      * @return Record|null
      */
-    public function findOneByIC(int $ic)
+    public function findOneByIC(string $ic)
     {
-        return $this->findOneByQuery(["ico" => intval($ic)]);
+        $res = $this->client->get(self::URL_IC . $ic);
+        if ($res->getStatusCode() !== 200) throw new AresException("Cannot fetch data! HTTP CODE " . $res->getStatusCode());
+
+        $jsonData = json_decode($res->getBody()->getContents(), true);
+        print_r($jsonData);
+        return $this->recordFromResponse($jsonData);
+    }
+
+    protected function recordFromResponse(array $res)
+    {
+        $cisloOrientacni = $res['sidlo']['cisloOrientacni'] ?? null;
+        if($cisloOrientacni){ $cisloOrientacni .= $res['sidlo']['cisloOrientacniPismeno'] ?? "";}
+
+        return new Record(
+            $res['obchodniJmeno'],
+            $res['sidlo']['nazevUlice'] ?? $res['sidlo']['nazevCastiObce'] ?? "",
+            (string)$res['sidlo']['cisloDomovni'],
+            $cisloOrientacni,
+            $res['sidlo']['nazevObce'],
+            $res['sidlo']['psc'],
+            $res['ico'],
+            $res['dic'] ?? null,
+        );
     }
 
 }
